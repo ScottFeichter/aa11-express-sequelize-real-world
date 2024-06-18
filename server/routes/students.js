@@ -134,8 +134,6 @@ router.get('/', async (req, res, next) => {
             }
         */
 	// Your code here
-    limit: limit,
-    offset:  offset,
 
 	res.json(students);
 });
