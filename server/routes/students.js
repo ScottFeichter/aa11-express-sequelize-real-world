@@ -25,14 +25,15 @@ router.get('/', async (req, res, next) => {
 	const { page, size } = req.query;
 
 	// Phase 2B (optional): Special case to return all students (page=0, size=0)
-	if (page === 0 && size === 0) {
+	if (+page === 0 && +size === 0) {
 		const students = await Student.findAll({
 			order: [
 				['lastName', 'ASC'],
 				['firstName', 'ASC'],
 			],
 		});
-		res.json(students);
+
+		return res.json(students);
 	}
 
 	// Phase 2B: Calculate limit and offset
@@ -46,10 +47,20 @@ router.get('/', async (req, res, next) => {
 	};
 
 	// Phase 2B: Add an error message to errorResult.errors of
-	if (!Number.isInteger(page) || !Number.isInteger(size)) {
-		errorResult.errors.push(err);
-		errorResult.count++;
-		next(errorResult);
+	if (page && size) {
+		console.log(typeof page, typeof size);
+		// if (isNaN(page) || isNaN(size)) {
+		// 	errorResult.errors.push(err);
+		// 	errorResult.count++;
+		// 	console.log('hello');
+		// 	return next(errorResult);
+		// }
+		if (!Number.isInteger(+page) || !Number.isInteger(+size)) {
+			errorResult.errors.push(err);
+			errorResult.count++;
+			console.log('hello');
+			return next(errorResult);
+		}
 	}
 
 	// Phase 4: Student Search Filters
@@ -97,7 +108,7 @@ router.get('/', async (req, res, next) => {
 	// Your code here
 	if (errorResult.count) {
 		res.status(400);
-		res.json(errorResult);
+		return res.json(errorResult);
 	}
 
 	let result = await Student.findAll({
