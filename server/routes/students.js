@@ -100,15 +100,12 @@ router.get('/', async (req, res, next) => {
 
 	if (lefty) {
 		if (lefty === 'true') {
-			console.log('lefty: ', lefty);
 			where.leftHanded = true;
 		} else if (lefty === 'false') {
-			console.log('lefty: ', lefty);
 			where.leftHanded = false;
 		} else {
 			const newError = { message: 'Lefty should be either true or false' };
 			errorResult.errors.push(newError);
-			console.log('line 107ish');
 		}
 	}
 
