@@ -6,18 +6,27 @@ const router = express.Router();
 const { Student } = require('../db/models');
 const { Op } = require("sequelize");
 
+
+
 // List
 router.get('/', async (req, res, next) => {
     let errorResult = { errors: [], count: 0, pageCount: 0 };
 
+
+    // Phase 1A:
+    // const { lastName, firstName } = req.query;
+    const students = await Student.findAll({
+        order: [['lastName', 'ASC'], ['firstName', 'ASC']]
+    });
+
     // Phase 2A: Use query params for page & size
-    // Your code here 
+    // Your code here
 
     // Phase 2B: Calculate limit and offset
     // Phase 2B (optional): Special case to return all students (page=0, size=0)
     // Phase 2B: Add an error message to errorResult.errors of
         // 'Requires valid page and size params' when page or size is invalid
-    // Your code here 
+    // Your code here
 
     // Phase 4: Student Search Filters
     /*
@@ -44,7 +53,7 @@ router.get('/', async (req, res, next) => {
     */
     const where = {};
 
-    // Your code here 
+    // Your code here
 
 
     // Phase 2C: Handle invalid params with "Bad Request" response
@@ -62,7 +71,7 @@ router.get('/', async (req, res, next) => {
                     pageCount: 0
                 }
         */
-    // Your code here 
+    // Your code here
 
     let result = {};
 
@@ -86,7 +95,7 @@ router.get('/', async (req, res, next) => {
                 page: 1
             }
         */
-    // Your code here 
+    // Your code here
 
     // Phase 3B:
         // Include the total number of available pages for this query as a key
@@ -102,7 +111,7 @@ router.get('/', async (req, res, next) => {
                 pageCount: 10 // total number of available pages for this query
             }
         */
-    // Your code here 
+    // Your code here
 
     res.json(result);
 });
