@@ -8,7 +8,7 @@ const { Op } = require('sequelize');
 
 // List
 router.get('/', async (req, res, next) => {
-	let errorResult = { errors: [], count: 0, pageCount: 0 };
+	// let errorResult = { errors: [], count: 0, pageCount: 0 };
 
 	// Phase 1A:
 	// const { lastName, firstName } = req.query;
@@ -21,35 +21,40 @@ router.get('/', async (req, res, next) => {
 
 	// Phase 2A: Use query params for page & size
 	// Your code here
-	// const { page, size } = req.query;
+
 	const { page, size } = req.query;
 
+	// Phase 2B (optional): Special case to return all students (page=0, size=0)
 	if (page === 0 && size === 0) {
-		// const students = await Student.findAll({
-		// 	order: [
-		// 		['lastName', 'ASC'],
-		// 		['firstName', 'ASC'],
-		// 	],
-		// });
-		// res.json(students);
+		const students = await Student.findAll({
+			order: [
+				['lastName', 'ASC'],
+				['firstName', 'ASC'],
+			],
+		});
+		res.json(students);
 	}
 
 	// Phase 2B: Calculate limit and offset
-	// Phase 2B (optional): Special case to return all students (page=0, size=0)
 
-	// Phase 2B: Add an error message to errorResult.errors of
-	// 'Requires valid page and size params' when page or size is invalid
-	// Your code here
+	const limit = parseInt(size);
+	const offset = parseInt(size) * (parseInt(page) - 1);
+
+
+
+
+	// Phase 2B 'Requires valid page and size params' when page or size is invalid
 	const err = {
 		message: 'Requires valid page and size params',
 	};
+	
+	// Phase 2B: Add an error message to errorResult.errors of
 	if (!Number.isInteger(page) || !Number.isInteger(size)) {
 		errorResult.errors.push(err);
 		next(errorResult);
 	}
 
-	const limit = parseInt(size);
-	const offset = parseInt(size) * (parseInt(page) - 1);
+
 
 	// Phase 4: Student Search Filters
 	/*
@@ -134,8 +139,7 @@ router.get('/', async (req, res, next) => {
             }
         */
 	// Your code here
-    limit: limit,
-    offset:  offset,
+
 
 	res.json(students);
 });
