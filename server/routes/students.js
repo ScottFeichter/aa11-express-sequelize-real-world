@@ -8,10 +8,10 @@ const { Op } = require('sequelize');
 
 // List
 router.get('/', async (req, res, next) => {
-	// let errorResult = { errors: [], count: 0, pageCount: 0 };
+	let errorResult = { errors: [], count: 0, pageCount: 0 };
 
 	// Phase 1A:
-	// const { lastName, firstName } = req.query;
+	const { lastName, firstName } = req.query;
 	const students = await Student.findAll({
 		order: [
 			['lastName', 'ASC'],
@@ -48,6 +48,7 @@ router.get('/', async (req, res, next) => {
 	// Phase 2B: Add an error message to errorResult.errors of
 	if (!Number.isInteger(page) || !Number.isInteger(size)) {
 		errorResult.errors.push(err);
+		errorResult.count++;
 		next(errorResult);
 	}
 
@@ -94,9 +95,19 @@ router.get('/', async (req, res, next) => {
                 }
         */
 	// Your code here
+	if (errorResult.count) {
+		res.status(400);
+		res.json(errorResult);
+	}
 
-	let result = {};
-
+	let result = await Student.findAll({
+		order: [
+			['lastName', 'ASC'],
+			['firstName', 'ASC'],
+		],
+		limit: limit,
+		offset: offset,
+	});
 	// Phase 3A: Include total number of results returned from the query without
 	// limits and offsets as a property of count on the result
 	// Note: This should be a new query
@@ -135,7 +146,7 @@ router.get('/', async (req, res, next) => {
         */
 	// Your code here
 
-	res.json(students);
+	res.json(result);
 });
 
 // Export class - DO NOT MODIFY
