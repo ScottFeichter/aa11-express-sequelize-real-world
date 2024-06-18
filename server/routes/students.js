@@ -12,18 +12,17 @@ router.get('/', async (req, res, next) => {
 
 	// Phase 1A:
 	const { lastName, firstName } = req.query;
-	const students = await Student.findAll({
-		order: [
-			['lastName', 'ASC'],
-			['firstName', 'ASC'],
-		],
-	});
 
 	// Phase 2A: Use query params for page & size
 	// Your code here
 
-	const { page, size } = req.query;
-
+	let { page, size } = req.query;
+	if (page === undefined) {
+		page = 1;
+	}
+	if (size === undefined) {
+		size = 10;
+	}
 	// Phase 2B (optional): Special case to return all students (page=0, size=0)
 	if (+page === 0 && +size === 0) {
 		const students = await Student.findAll({
@@ -32,8 +31,10 @@ router.get('/', async (req, res, next) => {
 				['firstName', 'ASC'],
 			],
 		});
-
-		return res.json(students);
+		let result = {};
+		result.rows = students;
+		result.page = 1;
+		return res.json(result);
 	}
 
 	// Phase 2B: Calculate limit and offset
@@ -47,14 +48,8 @@ router.get('/', async (req, res, next) => {
 	};
 
 	// Phase 2B: Add an error message to errorResult.errors of
+
 	if (page && size) {
-		console.log(typeof page, typeof size);
-		// if (isNaN(page) || isNaN(size)) {
-		// 	errorResult.errors.push(err);
-		// 	errorResult.count++;
-		// 	console.log('hello');
-		// 	return next(errorResult);
-		// }
 		if (!Number.isInteger(+page) || !Number.isInteger(+size)) {
 			errorResult.errors.push(err);
 			errorResult.count++;
@@ -111,7 +106,8 @@ router.get('/', async (req, res, next) => {
 		return res.json(errorResult);
 	}
 
-	let result = await Student.findAll({
+	let result = {};
+	const students = await Student.findAll({
 		order: [
 			['lastName', 'ASC'],
 			['firstName', 'ASC'],
@@ -119,6 +115,8 @@ router.get('/', async (req, res, next) => {
 		limit: limit,
 		offset: offset,
 	});
+	result.rows = students;
+	result.page = page;
 	// Phase 3A: Include total number of results returned from the query without
 	// limits and offsets as a property of count on the result
 	// Note: This should be a new query
