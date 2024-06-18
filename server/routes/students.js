@@ -11,7 +11,7 @@ router.get("/", async (req, res, next) => {
   let errorResult = { errors: [], count: 0, pageCount: 0 };
 
   // Phase 1A:
-  const { lastName, firstName } = req.query;
+  const { lastName, firstName, lefty } = req.query;
 
   // Phase 2A: Use query params for page & size
   // Your code here
@@ -55,7 +55,7 @@ router.get("/", async (req, res, next) => {
       errorResult.errors.push(err);
       errorResult.count = count;
       errorResult.pageCount = Math.ceil(count / limit);
-      console.log("hello");
+      console.log("line 58ish");
       return next(errorResult);
     }
   }
@@ -68,6 +68,7 @@ router.get("/", async (req, res, next) => {
             For example, if firstName query parameter is 'C', then the
                 query should match with students whose firstName is 'Cam' or
                 'Royce'.
+
 
         lastName filter: (similar to firstName)
             If the lastName query parameter exists, set the lastName query
@@ -84,6 +85,37 @@ router.get("/", async (req, res, next) => {
                 errorResult.errors
     */
   const where = {};
+
+  if(firstName) {
+    where.firstName = {
+      [Op.like]: firstName,
+    }
+  }
+
+  if(lastName) {
+    where.lastName = {
+      [Op.like]: lastName,
+    }
+  }
+
+  if(lefty === 'true') {
+    console.log("lefty: ", lefty);
+    where.leftHanded = true;
+    const leftCount = await Student.findAll({
+      attributes: [[sequelize.fn("COUNT", sequelize.col("leftHanded")), "count"]],
+    });
+  } else if (lefty === 'false') {
+    console.log("lefty: ", lefty);
+    where.leftHanded = false;
+  } else {
+    const newError = {message: "Lefty should be either true or false"}
+    errorResult.errors.push(newError);
+    console.log("line 107ish");
+  }
+
+// QUESITON: HOW CAN WE GET THE LEFTCOUNT IN THE RESULT
+
+
 
   // Your code here
 
@@ -116,6 +148,7 @@ router.get("/", async (req, res, next) => {
     ],
     limit: limit,
     offset: offset,
+    where: where
   });
 
   result.page = page;
